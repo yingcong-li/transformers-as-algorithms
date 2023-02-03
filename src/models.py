@@ -26,16 +26,11 @@ def get_relevant_baselines(task_name):
         ],
         "noisy_linear_regression": [
             (LeastSquaresModel, {}),
-            (RidgeModel, {"alpha": alpha for alpha in [1, 0.5, 0.1, 0.05, 0.01]}),
-        ],
-        "exp_decay_linear_regression": [
+            
+        ] + [(RidgeModel, {"alpha": alpha}) for alpha in [1, 0.5, 0.1, 0.05, 0.01]],
+        "hetero_linear_regression": [
             (LeastSquaresModel, {}),
-            (RidgeModel, {"alpha": alpha for alpha in [1, 0.1, 0.01, 0.001, 0.0001]}),
-        ],
-        "sparse_linear_regression": [
-            (LeastSquaresModel, {}),
-            (RidgeModel, {"alpha": alpha for alpha in [1, 0.1, 0.01, 0.001, 0.0001]}),
-        ],
+        ] + [(RidgeModel, {"alpha": alpha}) for alpha in [1, 0.1, 0.01, 0.001, 0.0001]]
     }
 
     models = [model_cls(**kwargs) for model_cls, kwargs in task_to_baselines[task_name]]
@@ -89,7 +84,7 @@ class TransformerModel(nn.Module):
         embeds = self._read_in(zs)
         output = self._backbone(inputs_embeds=embeds).last_hidden_state
         prediction = self._read_out(output)
-        return prediction[:, ::2][:, inds]  # predict only on xs
+        return prediction[:, ::2, 0][:, inds]  # predict only on xs
 
 
 # xs and ys should be on cpu for this method. Otherwise the output maybe off in case when train_xs is not full rank due to the implementation of torch.linalg.lstsq.
@@ -134,12 +129,11 @@ class LeastSquaresModel:
 
 # Ridge regression (for linear regression).
 class RidgeModel:
-    def __init__(self, alpha, max_iter=100000):
+    def __init__(self, alpha):
         # the l1 regularizer gets multiplied by alpha.
         assert alpha >= 0
         self.alpha = alpha
-        self.max_iter = max_iter
-        self.name = f"ridge_alpha={alpha}_max_iter={max_iter}"
+        self.name = f"ridge_alpha={alpha}"
 
     # inds is a list containing indices where we want the prediction.
     # prediction made at all indices by default.
@@ -164,9 +158,7 @@ class RidgeModel:
                 for j in range(ys.shape[0]):
                     train_xs, train_ys = xs[j, :i], ys[j, :i]
 
-                    clf = Ridge(
-                        alpha=self.alpha, fit_intercept=False, max_iter=self.max_iter
-                    )
+                    clf = Ridge(alpha=self.alpha, fit_intercept=False)
 
                     clf.fit(train_xs, train_ys)
 

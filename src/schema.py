@@ -36,18 +36,18 @@ curriculum_schema = {
 
 TASK_LIST = [
     "linear_regression",
-    "sparse_linear_regression",
-    "exp_decay_linear_regression",
+    "hetero_linear_regression",
 ]
 
 training_schema = {
     "task": merge(tstring, allowed(TASK_LIST)),
-    "task_kwargs": merge(tdict, required),
+    "task_kwargs": merge(tdict, default({})),
     "starting_point": merge(tinteger, default(0)),
     "ending_point": merge(tinteger, default(10000)),
     "n_tasks": merge(tinteger, nullable, default(None)),
     "n_sequences": merge(tinteger, nullable, default(None)),
     "data": merge(tstring, allowed(["gaussian"])),
+    "data_kwargs": merge(tdict, default({})),
     "batch_size": merge(tinteger, default(64)),
     "learning_rate": merge(tfloat, default(3e-4)),
     "train_steps": merge(tinteger, default(1000)),

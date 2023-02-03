@@ -1,5 +1,4 @@
 import os
-from random import randint
 import uuid
 
 from quinine import QuinineArgumentParser
@@ -8,7 +7,7 @@ import torch
 import yaml
 
 from eval import get_run_metrics
-from tasks import get_task_sampler
+from tasks import get_task_sampler, sample_seeds
 from samplers import get_data_sampler
 from curriculum import Curriculum
 from schema import schema
@@ -28,11 +27,7 @@ def train_step(model, xs, ys, optimizer, loss_func, sp, ep):
     return loss.detach().item(), output.detach()
 
 
-def sample_seeds(total_seeds, count):
-    seeds = set()
-    while len(seeds) < count:
-        seeds.add(randint(0, total_seeds - 1))
-    return seeds
+
 
 
 def train(model, args):
@@ -76,8 +71,6 @@ def train(model, args):
         data_sampler_args = {}
         task_sampler_args = {}
 
-        if "sparse" in args.training.task:
-            task_sampler_args["valid_coords"] = curriculum.n_dims_truncated
         if n_tasks is not None:
             assert n_tasks >= bsize
             seeds = sample_seeds(n_tasks, bsize)

@@ -1,4 +1,5 @@
 import torch
+from random import randint
 
 def squared_error(ys_pred, ys):
     return (ys - ys_pred).square()
@@ -6,6 +7,13 @@ def squared_error(ys_pred, ys):
 
 def mean_squared_error(ys_pred, ys):
     return (ys - ys_pred).square().mean()
+
+
+def sample_seeds(total_seeds, count):
+    seeds = set()
+    while len(seeds) < count:
+        seeds.add(randint(0, total_seeds - 1))
+    return seeds
 
 
 class Task:
@@ -26,15 +34,15 @@ class Task:
         raise NotImplementedError
 
 
-def get_task_sampler(task_name, n_dims, **kwargs):
+def get_task_sampler(task_name, n_dims, batch_size, **kwargs):
     task_names_to_classes = {
         "linear_regression": LinearRegression,
-        "sparse_linear_regression": SparseLinearRegression,
-        "exp_decay_linear_regression": ExpDecayLinearRegression,
+        "noisy_linear_regression": LinearRegression,
+        "hetero_linear_regression": HeteroLinearRegression,
     }
     if task_name in task_names_to_classes:
         task_cls = task_names_to_classes[task_name]
-        return lambda **args: task_cls(n_dims, **args, **kwargs)
+        return lambda **args: task_cls(n_dims, batch_size, **args, **kwargs)
     else:
         print("Unknown task")
         raise NotImplementedError
@@ -79,51 +87,7 @@ class LinearRegression(Task):
         return mean_squared_error
 
 
-class SparseLinearRegression(LinearRegression):
-    def __init__(
-        self,
-        n_dims,
-        batch_size,
-        seeds=None,
-        scale=1,
-        sparsity=3,
-        valid_coords=None,
-    ):
-        """scale: a constant by which to scale the randomly sampled weights."""
-        super(SparseLinearRegression, self).__init__(
-            n_dims, batch_size, seeds, scale
-        )
-        self.sparsity = sparsity
-        if valid_coords is None:
-            valid_coords = n_dims
-        assert valid_coords <= n_dims
-
-        for i, w in enumerate(self.w_b):
-            mask = torch.ones(n_dims).bool()
-            if seeds is None:
-                perm = torch.randperm(valid_coords)
-            else:
-                generator = torch.Generator()
-                generator.manual_seed(seeds[i])
-                perm = torch.randperm(valid_coords, generator=generator)
-            mask[perm[:sparsity]] = False
-            w[mask] = 0
-
-    def evaluate(self, xs_b):
-        w_b = self.w_b.to(xs_b.device)
-        ys_b = self.scale * (xs_b @ w_b)[:, :, 0]
-        return ys_b
-
-    @staticmethod
-    def get_metric():
-        return squared_error
-
-    @staticmethod
-    def get_training_metric():
-        return mean_squared_error
-
-
-class ExpDecayLinearRegression(LinearRegression):
+class HeteroLinearRegression(LinearRegression):
     def __init__(
         self,
         n_dims,
@@ -133,7 +97,7 @@ class ExpDecayLinearRegression(LinearRegression):
         base=2.,
     ):
         """scale: a constant by which to scale the randomly sampled weights."""
-        super(ExpDecayLinearRegression, self).__init__(
+        super(HeteroLinearRegression, self).__init__(
             n_dims, batch_size, seeds, scale
         )
         self.base = base
