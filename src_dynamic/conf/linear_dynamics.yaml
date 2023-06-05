@@ -1,0 +1,19 @@
+inherit: 
+    - base.yaml
+
+wandb:
+    name: linear_dynamics_standard
+    notes: 
+
+training:
+    task: linear_dynamics
+    curriculum:
+        points:
+            start: 41
+            end: 41
+            inc: 2
+            interval: 2000
+
+out_dir: ../models/linear_dynamics
+
+
