@@ -57,10 +57,18 @@ training_schema = {
     "curriculum": stdict(curriculum_schema),
 }
 
+wandb_schema = {
+    "project": merge(tstring, default("transformers-as-algorithms")),
+    "entity": merge(tstring, default("your-entity")),
+    "notes": merge(tstring, default("")),
+    "name": merge(tstring, nullable, default(None)),
+    "log_every_steps": merge(tinteger, default(10)),
+}
 
 schema = {
     "out_dir": merge(tstring, required),
     "model": stdict(model_schema),
     "training": stdict(training_schema),
+    "wandb": stdict(wandb_schema),
     "test_run": merge(tboolean, default(False)),
 }

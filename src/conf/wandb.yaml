@@ -1,0 +1,5 @@
+wandb:
+    project: transformers-as-algorithms
+    entity: your-entity
+    notes: 
+    log_every_steps: 100

@@ -1,0 +1,15 @@
+inherit: 
+    - base.yaml
+
+wandb:
+    name: hetero_linear_regression
+    notes: 
+
+training:
+    task: hetero_linear_regression
+    task_kwargs: {"base": 2.}
+
+
+out_dir: ../models/hetero_linear_regression
+
+

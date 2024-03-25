@@ -1,0 +1,14 @@
+inherit: 
+    - base.yaml
+
+wandb:
+    name: linear_regression
+    notes: 
+
+training:
+    task: linear_regression
+
+
+out_dir: ../models/linear_regression
+
+

@@ -1,0 +1,14 @@
+inherit: 
+    - base.yaml
+
+wandb:
+    name: noisy_linear_regression
+    notes: std=1
+
+training:
+    task: noisy_linear_regression
+    task_kwargs: {"noise_std": 1}
+
+out_dir: ../models/noisy_linear_regression
+
+
