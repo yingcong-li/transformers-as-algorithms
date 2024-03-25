@@ -7,7 +7,7 @@ Paper: https://arxiv.org/pdf/2301.07067.pdf
 
 
 ## Start up
-Follow [in-context-learning](https://github.com/dtsip/in-context-learning)'s instruction by runing
+Follow [in-context-learning](https://github.com/dtsip/in-context-learning)'s instruction by running
 ```
 conda env create -f environment.yml
 conda activate in-context-learning
@@ -15,7 +15,7 @@ conda activate in-context-learning
 
 ## Training
 1. Enter into a specific directory ```src``` or ```src_dynamic```
-2. Run ```train.py``` based on the choosen config file: ```python train.py --config conf/[config_file].yaml```
+2. Run ```train.py``` based on the chosen config file: ```python train.py --config conf/[config_file].yaml```
 
 ## Test
 [TO BE DONE]
